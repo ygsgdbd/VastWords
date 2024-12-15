@@ -10,6 +10,7 @@ struct WordListItem: Identifiable {
     let stars: Int
     let createdAt: Date
     let updatedAt: Date
+    let definition: String?
 }
 
 /// 单词列表视图模型
@@ -26,6 +27,8 @@ final class WordListViewModel: ObservableObject {
     @Published private(set) var showsClearButton = false
     /// 是否只显示星标单词
     @Published var showStarredOnly = false
+    /// 是否显示释义
+    @Published var showDefinition = true
     /// 最近12小时的统计数据
     @Published private(set) var hourlyStatistics: [HourlyStatistics] = []
     
@@ -143,46 +146,57 @@ final class WordListViewModel: ObservableObject {
         }
     }
     
-    /// 清除搜索文本
-    func clearSearch() {
-        searchText = ""
-    }
-    
     /// 加载所有单词
     func loadWords() {
-        do {
-            let words = try repository.getAll()
-            items = words.map { word in
-                WordListItem(
-                    id: word.text,
-                    text: word.text,
-                    count: word.count,
-                    stars: word.stars,
-                    createdAt: word.createdAt,
-                    updatedAt: word.updatedAt
-                )
+        Task {
+            do {
+                let words = try repository.getAll()
+                var newItems: [WordListItem] = []
+                
+                for word in words {
+                    let definition = await SystemDictionaryService.shared.lookup(word.text)
+                    newItems.append(WordListItem(
+                        id: word.text,
+                        text: word.text,
+                        count: word.count,
+                        stars: word.stars,
+                        createdAt: word.createdAt,
+                        updatedAt: word.updatedAt,
+                        definition: definition
+                    ))
+                }
+                
+                items = newItems
+            } catch {
+                print("⚠️ Failed to load words: \(error)")
             }
-        } catch {
-            print("⚠️ Failed to load words: \(error)")
         }
     }
     
     /// 加载星标单词
     private func loadStarredWords() {
-        do {
-            let words = try repository.getStarred()
-            items = words.map { word in
-                WordListItem(
-                    id: word.text,
-                    text: word.text,
-                    count: word.count,
-                    stars: word.stars,
-                    createdAt: word.createdAt,
-                    updatedAt: word.updatedAt
-                )
+        Task {
+            do {
+                let words = try repository.getStarred()
+                var newItems: [WordListItem] = []
+                
+                for word in words {
+                    let definition = await SystemDictionaryService.shared.lookup(word.text)
+                    newItems.append(WordListItem(
+                        id: word.text,
+                        text: word.text,
+                        count: word.count,
+                        stars: word.stars,
+                        createdAt: word.createdAt,
+                        updatedAt: word.updatedAt,
+                        definition: definition
+                    ))
+                }
+                
+                items = newItems
+            } catch {
+                print("⚠️ Failed to load starred words: \(error)")
             }
-        } catch {
-            print("⚠️ Failed to load starred words: \(error)")
         }
     }
     
@@ -229,27 +243,40 @@ final class WordListViewModel: ObservableObject {
     
     /// 搜索单词
     private func search(_ query: String) {
-        do {
-            var words = try repository.search(query)
-            
-            // 如果开启了星标筛选，只显示星标单词
-            if showStarredOnly {
-                words = words.filter { $0.stars > 0 }
+        Task {
+            do {
+                var words = try repository.search(query)
+                
+                // 如果开启了星标筛选，只显示星标单词
+                if showStarredOnly {
+                    words = words.filter { $0.stars > 0 }
+                }
+                
+                var newItems: [WordListItem] = []
+                
+                for word in words {
+                    let definition = await SystemDictionaryService.shared.lookup(word.text)
+                    newItems.append(WordListItem(
+                        id: word.text,
+                        text: word.text,
+                        count: word.count,
+                        stars: word.stars,
+                        createdAt: word.createdAt,
+                        updatedAt: word.updatedAt,
+                        definition: definition
+                    ))
+                }
+                
+                items = newItems
+            } catch {
+                print("⚠️ Failed to search words: \(error)")
             }
-            
-            items = words.map { word in
-                WordListItem(
-                    id: word.text,
-                    text: word.text,
-                    count: word.count,
-                    stars: word.stars,
-                    createdAt: word.createdAt,
-                    updatedAt: word.updatedAt
-                )
-            }
-        } catch {
-            print("⚠️ Failed to search words: \(error)")
         }
+    }
+    
+    /// 清除搜索文本
+    func clearSearch() {
+        searchText = ""
     }
 }
 

@@ -29,7 +29,7 @@ struct WordListView: View {
                 
                 // 星标筛选
                 Toggle(isOn: $viewModel.showStarredOnly) {
-                    Text("已收藏")
+                    Text("星标")
                         .font(Typography.subtitle)
                         .foregroundStyle(.secondary)
                 }
@@ -42,46 +42,43 @@ struct WordListView: View {
             Divider()
             
             // 单词列表
-            VStack(spacing: Spacing.none) {
-                
-                List(viewModel.items, id: \.id) { item in
-                    WordRowView(
-                        item: item,
-                        isHovered: hoveredWordId == item.id,
-                        onStarTap: { stars in
-                            viewModel.updateStars(for: item.id, stars: stars)
-                        },
-                        onDelete: {
-                            viewModel.remove(item.text)
+            ScrollView {
+                LazyVStack(spacing: Spacing.none) {
+                    ForEach(viewModel.items) { item in
+                        WordRowView(
+                            item: item,
+                            isHovered: hoveredWordId == item.id,
+                            onStarTap: { stars in
+                                viewModel.updateStars(for: item.id, stars: stars)
+                            },
+                            onDelete: {
+                                viewModel.remove(item.text)
+                            }
+                        )
+                        .background(
+                            RoundedRectangle(cornerRadius: 0)
+                                .fill(hoveredWordId == item.id ? Color.gray.opacity(0.1) : Color.clear)
+                        )
+                        .onHover { isHovered in
+                            hoveredWordId = isHovered ? item.id : nil
                         }
-                    )
-                    .listRowInsets(EdgeInsets(
-                        top: Spacing.small,
-                        leading: Spacing.small,
-                        bottom: Spacing.small,
-                        trailing: Spacing.small
-                    ))
-                    .listRowBackground(
-                        RoundedRectangle(cornerRadius: 0)
-                            .fill(hoveredWordId == item.id ? Color.gray.opacity(0.1) : Color.clear)
-                    )
-                    .listRowSeparator(.visible, edges: .bottom)
-                    .listRowSeparatorTint(Color.secondary.opacity(0.1))
-                    .onHover { isHovered in
-                        hoveredWordId = isHovered ? item.id : nil
-                    }
-                    .onTapGesture {
-                        DictionaryService.shared.lookupInDictionary(item.text)
+                        .onTapGesture {
+                            SystemDictionaryService.shared.lookupInDictionary(item.text)
+                        }
+                        
+                        Divider()
+                            .opacity(0.2)
                     }
                 }
-                .listStyle(.plain)
             }
+            .scrollIndicators(.visible)
         }
     }
 }
 
 /// 单词行视图
 struct WordRowView: View {
+    @EnvironmentObject private var viewModel: WordListViewModel
     let item: WordListItem
     let isHovered: Bool
     let onStarTap: (Int) -> Void
@@ -154,8 +151,20 @@ struct WordRowView: View {
                 }
             }
             .padding(.vertical, Spacing.tiny)
+            
+            // 第三行：释义
+            if viewModel.showDefinition, let definition = item.definition {
+                Text(definition)
+                    .font(Typography.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+                    .onTapGesture {
+                        SystemDictionaryService.shared.lookupInDictionary(item.text)
+                    }
+            }
         }
-        .padding(.vertical, Spacing.medium)
+        .padding(.horizontal, Spacing.extraLarge)
+        .padding(.vertical, Spacing.large)
     }
 }
 

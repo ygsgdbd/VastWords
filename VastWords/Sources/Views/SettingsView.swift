@@ -5,6 +5,7 @@ struct SettingsView: View {
     
     var body: some View {
         Grid(alignment: .leading, horizontalSpacing: Spacing.large) {
+            // 导出设置
             GridRow {
                 // 左侧标题和副标题
                 VStack(alignment: .leading, spacing: Spacing.small) {
@@ -34,6 +35,35 @@ struct SettingsView: View {
                             .font(Typography.caption)
                     }
                     .buttonStyle(.borderless)
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .gridCellColumns(1)
+            }
+            
+            Divider()
+                .padding(.vertical, Spacing.medium)
+                .gridCellColumns(2)
+            
+            // 显示设置
+            GridRow {
+                // 左侧标题和副标题
+                VStack(alignment: .leading, spacing: Spacing.small) {
+                    Text("显示释义")
+                        .font(Typography.subtitle)
+                    
+                    Text("显示系统释义")
+                        .font(Typography.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .gridCellColumns(1)
+                
+                // 右侧功能区域
+                HStack(spacing: Spacing.medium) {
+                    Toggle(isOn: $viewModel.showDefinition) {
+                        
+                    }
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .gridCellColumns(1)
