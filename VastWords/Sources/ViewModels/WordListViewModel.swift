@@ -1,6 +1,11 @@
 import Foundation
 import SwiftUI
 import Combine
+import Defaults
+
+extension Defaults.Keys {
+    static let showStarredOnly = Key<Bool>("showStarredOnly", default: false)
+}
 
 /// 单词列表项
 struct WordListItem: Identifiable {
@@ -26,7 +31,12 @@ final class WordListViewModel: ObservableObject {
     /// 是否显示搜索清除按钮
     @Published private(set) var showsClearButton = false
     /// 是否只显示星标单词
-    @Published var showStarredOnly = false
+    @Published var showStarredOnly = false {
+        didSet {
+            Defaults[.showStarredOnly] = showStarredOnly
+            refreshList()
+        }
+    }
     /// 是否显示释义
     @Published var showDefinition = true
     /// 最近12小时的统计数据
@@ -72,6 +82,9 @@ final class WordListViewModel: ObservableObject {
     
     init(repository: WordRepository = .shared) {
         self.repository = repository
+        // 从 Defaults 读取星标筛选状态
+        self.showStarredOnly = Defaults[.showStarredOnly]
+        
         setupBindings()
         loadWords()
         loadStatistics()
@@ -101,13 +114,6 @@ final class WordListViewModel: ObservableObject {
             .map { !$0.isEmpty }
             .assign(to: \.showsClearButton, on: self)
             .store(in: &cancellables)
-            
-        // 监听星标筛选变化
-        $showStarredOnly
-            .sink { [weak self] _ in
-                self?.refreshList()
-            }
-            .store(in: &cancellables)
     }
     
     /// 刷新列表，考虑搜索和星标状态
@@ -123,7 +129,7 @@ final class WordListViewModel: ObservableObject {
         }
     }
     
-    /// 加载最近12小时的统计数据
+    /// 加载最近12小时的统计数���
     private func loadStatistics() {
         do {
             let now = Date()
@@ -247,7 +253,7 @@ final class WordListViewModel: ObservableObject {
             do {
                 var words = try repository.search(query)
                 
-                // 如果开启了星标筛选，只显示星标单词
+                // 如果开启了��标筛选，显示星标单词
                 if showStarredOnly {
                     words = words.filter { $0.stars > 0 }
                 }
