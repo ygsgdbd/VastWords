@@ -80,6 +80,15 @@ final class WordListViewModel: ObservableObject {
                 self?.loadStatistics()
             }
             .store(in: &cancellables)
+            
+        // 监听单词保存通知
+        NotificationCenter.default.publisher(for: .wordsDidSave)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.loadWords()
+                self?.loadStatistics()
+            }
+            .store(in: &cancellables)
     }
     
     private func setupBindings() {

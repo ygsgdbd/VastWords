@@ -3,6 +3,10 @@ import AppKit
 import SwiftUI
 import Combine
 
+extension Notification.Name {
+    static let wordsDidSave = Notification.Name("wordsDidSave")
+}
+
 @MainActor
 final class ClipboardManager: ObservableObject {
     static let shared = ClipboardManager()
@@ -41,7 +45,7 @@ final class ClipboardManager: ObservableObject {
     
     private func checkForChanges() {
         guard pasteboard.changeCount != lastChangeCount else { return }
-        print("📋 ClipboardManager: 检测到剪贴板变化 [\(lastChangeCount) -> \(pasteboard.changeCount)]")
+        print("📋 ClipboardManager: 检测到剪贴板��化 [\(lastChangeCount) -> \(pasteboard.changeCount)]")
         
         guard let text = pasteboard.string(forType: .string) else {
             print("📋 ClipboardManager: 剪贴板内容不是文本")
@@ -62,6 +66,7 @@ final class ClipboardManager: ObservableObject {
         do {
             try repository.batchSave(words)
             print("📋 ClipboardManager: 保存单词成功")
+            NotificationCenter.default.post(name: .wordsDidSave, object: nil)
         } catch {
             print("⚠️ ClipboardManager: 保存单词失败: \(error)")
         }

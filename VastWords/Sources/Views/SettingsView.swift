@@ -9,10 +9,10 @@ struct SettingsView: View {
                 // 左侧标题和副标题
                 VStack(alignment: .leading, spacing: Spacing.small) {
                     Text("导出")
-                        .font(Typography.title)
+                        .font(Typography.subtitle)
                     
                     Text("支持导出词库数据")
-                        .font(Typography.subtitle)
+                        .font(Typography.caption)
                         .foregroundStyle(.secondary)
                 }
                 .gridCellColumns(1)
@@ -23,7 +23,7 @@ struct SettingsView: View {
                         viewModel.exportToTxt(starredOnly: true)
                     }) {
                         Text("导出星标")
-                            .font(Typography.button)
+                            .font(Typography.caption)
                     }
                     .buttonStyle(.borderless)
                     
@@ -31,7 +31,7 @@ struct SettingsView: View {
                         viewModel.exportToTxt()
                     }) {
                         Text("导出全部")
-                            .font(Typography.button)
+                            .font(Typography.caption)
                     }
                     .buttonStyle(.borderless)
                 }
