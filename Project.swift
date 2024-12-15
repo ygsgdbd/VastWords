@@ -11,7 +11,7 @@ let project = Project(
         .remote(url: "https://github.com/SwiftUIX/SwiftUIX", requirement: .upToNextMajor(from: "0.1.9")),
         .remote(url: "https://github.com/SwifterSwift/SwifterSwift", requirement: .upToNextMajor(from: "7.0.0")),
         .remote(url: "https://github.com/sindresorhus/KeyboardShortcuts", requirement: .upToNextMajor(from: "2.2.2")),
-        .remote(url: "https://github.com/pinterest/PINCache.git", requirement: .upToNextMajor(from: "3.0.3"))
+        .remote(url: "https://github.com/JohnEstropia/CoreStore", requirement: .upToNextMajor(from: "9.3.0"))
     ],
     settings: .settings(
         base: [
@@ -50,7 +50,8 @@ let project = Project(
                 .package(product: "SwiftUIX"),
                 .package(product: "SwifterSwift"),
                 .package(product: "KeyboardShortcuts"),
-                .package(product: "PINCache")
+                .package(product: "CoreStore"),
+                .sdk(name: "CoreServices", type: .framework)
             ],
             settings: .settings(
                 base: [

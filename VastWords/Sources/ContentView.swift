@@ -2,28 +2,29 @@ import SwiftUI
 import SwiftUIX
 
 struct ContentView: View {
-    @ObservedObject var clipboardManager: ClipboardManager
+    @EnvironmentObject private var viewModel: WordListViewModel
     
     var body: some View {
-        VStack(spacing: 16) {
-            Text("VastWords")
-                .font(.title)
+        VStack(spacing: 0) {
+            WordListView()
+                .minHeight(300)
             
             Divider()
             
-            Text("正在监听剪贴板...")
-                .font(.body)
-                .foregroundColor(.secondary)
+            StatisticsView(data: viewModel.hourlyStatistics)
             
-            Text("已处理 \(clipboardManager.lastProcessedChangeCount) 次变更")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            Divider()
+            
+            SettingsView()
+            
+            Divider()
+            
+            BottomBarView()
         }
-        .frame(width: 300)
-        .padding()
     }
 }
 
 #Preview {
-    ContentView(clipboardManager: ClipboardManager())
+    ContentView()
+        .environmentObject(WordListViewModel())
 } 

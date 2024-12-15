@@ -4,11 +4,17 @@ import SwiftUIX
 @main
 struct VastWordsApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var clipboardManager = ClipboardManager()
+    @StateObject private var viewModel = WordListViewModel()
+    
+    init() {
+        // 启动剪贴板监听
+        ClipboardManager.shared.startMonitoring()
+    }
     
     var body: some Scene {
         MenuBarExtra {
-            ContentView(clipboardManager: clipboardManager)
+            ContentView()
+                .environmentObject(viewModel)
         } label: {
             Image(systemName: "character.textbox")
         }

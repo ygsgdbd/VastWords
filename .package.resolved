@@ -1,6 +1,15 @@
 {
-  "originHash" : "e418a6ff6482283a48325b7969ccee5c6de8d4d91e12e71e8da4dcb66db68984",
+  "originHash" : "6809511e37af1b5883ef77274ef2859e10ab6199f0ba106fc25fab94e8f1eda8",
   "pins" : [
+    {
+      "identity" : "corestore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JohnEstropia/CoreStore",
+      "state" : {
+        "revision" : "5a0d27cf343c6e341b0ef3c8d36104770b27a839",
+        "version" : "9.3.0"
+      }
+    },
     {
       "identity" : "defaults",
       "kind" : "remoteSourceControl",
@@ -15,26 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sindresorhus/KeyboardShortcuts",
       "state" : {
-        "revision" : "323d9f882ea060e28183ad67d9a9053317751071",
-        "version" : "2.2.3"
-      }
-    },
-    {
-      "identity" : "pincache",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pinterest/PINCache.git",
-      "state" : {
-        "revision" : "2fb85948463292c2e824148cf17dc62a4c217a94",
-        "version" : "3.0.4"
-      }
-    },
-    {
-      "identity" : "pinoperation",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pinterest/PINOperation.git",
-      "state" : {
-        "revision" : "a74f978733bdaf982758bfa23d70a189f4b4c1b6",
-        "version" : "1.2.3"
+        "revision" : "7ecc38bb6edf7d087d30e737057b8d8a9b7f51eb",
+        "version" : "2.2.4"
       }
     },
     {
