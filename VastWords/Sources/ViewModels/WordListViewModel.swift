@@ -73,14 +73,6 @@ final class WordListViewModel: ObservableObject {
         loadWords()
         loadStatistics()
         
-        // 每分钟更新一次统计数据
-        Timer.publish(every: 60, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.loadStatistics()
-            }
-            .store(in: &cancellables)
-            
         // 监听单词保存通知
         NotificationCenter.default.publisher(for: .wordsDidSave)
             .receive(on: RunLoop.main)
@@ -97,11 +89,7 @@ final class WordListViewModel: ObservableObject {
             .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] query in
-                if query.isEmpty {
-                    self?.loadWords()
-                } else {
-                    self?.search(query)
-                }
+                self?.refreshList()
             }
             .store(in: &cancellables)
         
@@ -113,14 +101,23 @@ final class WordListViewModel: ObservableObject {
             
         // 监听星标筛选变化
         $showStarredOnly
-            .sink { [weak self] showStarred in
-                if showStarred {
-                    self?.loadStarredWords()
-                } else {
-                    self?.loadWords()
-                }
+            .sink { [weak self] _ in
+                self?.refreshList()
             }
             .store(in: &cancellables)
+    }
+    
+    /// 刷新列表，考虑搜索和星标状态
+    private func refreshList() {
+        if searchText.isEmpty {
+            if showStarredOnly {
+                loadStarredWords()
+            } else {
+                loadWords()
+            }
+        } else {
+            search(searchText)
+        }
     }
     
     /// 加载最近12小时的统计数据
@@ -233,7 +230,13 @@ final class WordListViewModel: ObservableObject {
     /// 搜索单词
     private func search(_ query: String) {
         do {
-            let words = try repository.search(query)
+            var words = try repository.search(query)
+            
+            // 如果开启了星标筛选，只显示星标单词
+            if showStarredOnly {
+                words = words.filter { $0.stars > 0 }
+            }
+            
             items = words.map { word in
                 WordListItem(
                     id: word.text,
