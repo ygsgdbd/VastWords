@@ -8,7 +8,7 @@ struct SettingsView: View {
             GridRow {
                 // 左侧标题和副标题
                 VStack(alignment: .leading, spacing: Spacing.small) {
-                    Text("导入导出")
+                    Text("导出所有")
                         .font(Typography.title)
                     
                     Text("支持导出词库数据")
@@ -19,8 +19,10 @@ struct SettingsView: View {
                 
                 // 右侧功能区域
                 HStack(spacing: Spacing.medium) {
-                    Button(action: {}) {
-                        Text("导出")
+                    Button(action: {
+                        viewModel.exportToTxt()
+                    }) {
+                        Text("导出 TXT")
                             .font(Typography.button)
                     }
                     .buttonStyle(.borderless)

@@ -36,6 +36,37 @@ final class WordListViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
+    /// 导出单词列表到文本文件
+    func exportToTxt() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd_HHmmss"
+        let timestamp = dateFormatter.string(from: Date())
+        
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = [.plainText]
+        savePanel.nameFieldStringValue = "words_\(timestamp).txt"
+        savePanel.title = "导出单词列表"
+        savePanel.message = "选择保存位置"
+        savePanel.prompt = "导出"
+        
+        guard savePanel.runModal() == .OK,
+              let url = savePanel.url else {
+            return
+        }
+        
+        do {
+            // 获取所有单词并按时间倒序排序
+            let words = try repository.getAll()
+                .sorted { $0.updatedAt > $1.updatedAt }
+                .map { $0.text }
+                .joined(separator: "\n")
+            
+            try words.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            print("⚠️ Failed to export words: \(error)")
+        }
+    }
+    
     init(repository: WordRepository = .shared) {
         self.repository = repository
         setupBindings()

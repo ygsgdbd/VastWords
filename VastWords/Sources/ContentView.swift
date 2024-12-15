@@ -11,7 +11,10 @@ struct ContentView: View {
             
             Divider()
             
-            StatisticsView(data: viewModel.hourlyStatistics)
+            StatisticsView(
+                data: viewModel.hourlyStatistics,
+                totalCount: viewModel.totalCount
+            )
             
             Divider()
             

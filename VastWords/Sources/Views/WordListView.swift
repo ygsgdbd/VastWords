@@ -26,37 +26,15 @@ struct WordListView: View {
                     }
                     .buttonStyle(.plain)
                 }
-            }
-            .padding(.horizontal, Spacing.extraLarge)
-            .padding(.vertical, Spacing.medium)
-            
-            Divider()
-            
-            // 过滤和统计
-            HStack {
+                
                 // 星标筛选
                 Toggle(isOn: $viewModel.showStarredOnly) {
-                    Label {
-                        Text("已收藏")
-                            .font(Typography.subtitle)
-                            .foregroundStyle(.secondary)
-                    } icon: {
-                        Image(systemName: "star.fill")
-                            .foregroundStyle(.yellow)
-                            .imageScale(.small)
-                    }
-                }
-                .toggleStyle(.switch)
-                .controlSize(.mini)
-                
-                Spacer()
-                
-                // 统计信息
-                if let firstDate = viewModel.firstWordDate {
-                    Text("已收集 \(viewModel.totalCount) 个词 · 开始于\(firstDate.formatted(.relative(presentation: .named)))")
+                    Text("已收藏")
                         .font(Typography.subtitle)
                         .foregroundStyle(.secondary)
                 }
+                .toggleStyle(.switch)
+                .controlSize(.mini)
             }
             .padding(.horizontal, Spacing.extraLarge)
             .padding(.vertical, Spacing.medium)
@@ -64,37 +42,40 @@ struct WordListView: View {
             Divider()
             
             // 单词列表
-            List(viewModel.items, id: \.id) { item in
-                WordRowView(
-                    item: item,
-                    isHovered: hoveredWordId == item.id,
-                    onStarTap: { stars in
-                        viewModel.updateStars(for: item.id, stars: stars)
-                    },
-                    onDelete: {
-                        viewModel.remove(item.text)
+            VStack(spacing: Spacing.none) {
+                
+                List(viewModel.items, id: \.id) { item in
+                    WordRowView(
+                        item: item,
+                        isHovered: hoveredWordId == item.id,
+                        onStarTap: { stars in
+                            viewModel.updateStars(for: item.id, stars: stars)
+                        },
+                        onDelete: {
+                            viewModel.remove(item.text)
+                        }
+                    )
+                    .listRowInsets(EdgeInsets(
+                        top: Spacing.small,
+                        leading: Spacing.small,
+                        bottom: Spacing.small,
+                        trailing: Spacing.small
+                    ))
+                    .listRowBackground(
+                        RoundedRectangle(cornerRadius: 0)
+                            .fill(hoveredWordId == item.id ? Color.gray.opacity(0.1) : Color.clear)
+                    )
+                    .listRowSeparator(.visible, edges: .bottom)
+                    .listRowSeparatorTint(Color.secondary.opacity(0.1))
+                    .onHover { isHovered in
+                        hoveredWordId = isHovered ? item.id : nil
                     }
-                )
-                .listRowInsets(EdgeInsets(
-                    top: Spacing.small,
-                    leading: Spacing.small,
-                    bottom: Spacing.small,
-                    trailing: Spacing.small
-                ))
-                .listRowBackground(
-                    RoundedRectangle(cornerRadius: 0)
-                        .fill(hoveredWordId == item.id ? Color.gray.opacity(0.1) : Color.clear)
-                )
-                .listRowSeparator(.visible, edges: .bottom)
-                .listRowSeparatorTint(Color.secondary.opacity(0.1))
-                .onHover { isHovered in
-                    hoveredWordId = isHovered ? item.id : nil
+                    .onTapGesture {
+                        DictionaryService.shared.lookupInDictionary(item.text)
+                    }
                 }
-                .onTapGesture {
-                    DictionaryService.shared.lookupInDictionary(item.text)
-                }
+                .listStyle(.plain)
             }
-            .listStyle(.plain)
         }
     }
 }
@@ -115,7 +96,7 @@ struct WordRowView: View {
     }()
     
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.large) {
+        VStack(alignment: .leading, spacing: Spacing.medium) {
             // 第一行：单词和出现次数
             HStack(alignment: .center, spacing: Spacing.small) {
                 Text(item.text.capitalized)
