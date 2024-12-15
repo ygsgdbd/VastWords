@@ -100,7 +100,7 @@ struct WordRowView: View {
             // 第一行：单词和出现次数
             HStack(alignment: .center, spacing: Spacing.small) {
                 Text(item.text.capitalized)
-                    .font(Typography.body)
+                    .font(Typography.title)
                     .foregroundStyle(.primary)
                     .onTapGesture {
                         NSPasteboard.general.clearContents()
