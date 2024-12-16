@@ -25,10 +25,11 @@ struct StatisticsView: View {
     }()
     
     private var totalWordsDescription: String {
-        if let firstWordDate = viewModel.firstWordDate {
-            return "自 \(Self.dateFormatter.string(from: firstWordDate)) 起，已收集 \(viewModel.totalCount) 个单词"
-        }
-        return "已收集 \(viewModel.totalCount) 个单词"
+        return "总计收集 \(viewModel.totalCount) 个单词"
+    }
+    
+    private var startDateDescription: String? {
+        viewModel.firstWordDate.map { "· \(Self.dateFormatter.string(from: $0)) 开始" }
     }
     
     private var hourlyAverage: Double {
@@ -36,25 +37,24 @@ struct StatisticsView: View {
         return Double(total) / Double(viewModel.hourlyStatistics.count)
     }
     
+    private var maxHourlyCount: (hour: Date, count: Int)? {
+        viewModel.hourlyStatistics.max { $0.count < $1.count }
+            .map { ($0.hour, $0.count) }
+    }
+    
+    private var todayCount: Int {
+        let calendar = Calendar.current
+        return viewModel.hourlyStatistics
+            .filter { calendar.isDateInToday($0.hour) }
+            .reduce(0) { $0 + $1.count }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
-            // 标题区域
-            HStack {
-                Text("12小时趋势")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                
-                Spacer()
-                
-                Label {
-                    Text(String(format: "平均每小时 %.1f 个", hourlyAverage))
-                        .font(.system(size: 11))
-                } icon: {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.system(size: 11))
-                }
-                .foregroundStyle(.secondary)
-            }
+            // 趋势标题
+            Text("24 小时趋势")
+                .font(.system(size: 9))
+                .foregroundStyle(.secondary.opacity(0.8))
             
             // 图表区域
             Chart {
@@ -128,7 +128,9 @@ struct StatisticsView: View {
                         )
                 }
             }
-            .frame(height: 120)
+            .frame(height: 100)
+            
+            
             
             if let hour = selectedHour,
                let count = selectedCount {
@@ -136,6 +138,105 @@ struct StatisticsView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                     .transition(.opacity)
+            }
+            
+            // 起始时间统计
+            if let startDate = viewModel.firstWordDate {
+                HStack(spacing: Spacing.small) {
+                    Image(systemName: "calendar")
+                        .frame(width: 16)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                    
+                    Text("开始时间")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                    
+                    Text("\(Self.dateFormatter.string(from: startDate))")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                    if let relativeTime = viewModel.relativeTimeDescription {
+                        Text("（\(relativeTime)）")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary.opacity(0.8))
+                    }
+                }
+            }
+            
+            // 总计统计
+            HStack(spacing: Spacing.small) {
+                Image(systemName: "text.word.spacing")
+                    .frame(width: 16)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                
+                Text("收集总数")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                Text("\(viewModel.totalCount) 个单词")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            
+            // 今日统计
+            HStack(spacing: Spacing.small) {
+                Image(systemName: "sun.max")
+                    .frame(width: 16)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                
+                Text("今日收集")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                Text("\(todayCount) 个单词")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            
+            // 平均速度统计
+            HStack(spacing: Spacing.small) {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .frame(width: 16)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                
+                Text("平均速度")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                Text(String(format: "每小时 %.1f 个", hourlyAverage))
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            
+            // 最高记录
+            if let max = maxHourlyCount {
+                HStack(spacing: Spacing.small) {
+                    Image(systemName: "trophy")
+                        .frame(width: 16)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                    
+                    Text("最高记录")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                    
+                    Text("\(Self.hourFormatter.string(from: max.hour)) · \(max.count) 个")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .padding(.horizontal, Spacing.extraLarge)

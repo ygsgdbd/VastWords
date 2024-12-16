@@ -9,8 +9,8 @@ final class SystemDictionaryService {
     /// 缓存词典查询结果
     private let cache: NSCache<NSString, NSString> = {
         let cache = NSCache<NSString, NSString>()
-        cache.name = "com.vastwords.dictionary.cache"
-        cache.countLimit = 1000 // 最多缓存1000个单词
+        cache.name = "top.ygsgdbd.vastwords.dictionary.cache"
+        cache.countLimit = 2000
         return cache
     }()
     

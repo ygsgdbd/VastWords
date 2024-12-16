@@ -36,7 +36,12 @@ let project = Project(
                 "CFBundleDevelopmentRegion": "zh-Hans",  // 设置默认开发区域为简体中文
                 "CFBundleLocalizations": ["zh-Hans", "zh-Hant", "en"],  // 支持的语言列表
                 "AppleLanguages": ["zh-Hans"],  // 设置默认语言为简体中文
-                "NSHumanReadableCopyright": "Copyright © 2024 ygsgdbd. All rights reserved."
+                "NSHumanReadableCopyright": "Copyright © 2024 ygsgdbd. All rights reserved.",
+                "LSApplicationCategoryType": "public.app-category.utilities",
+                "LSMinimumSystemVersion": "13.0",
+                // 添加开机启动所需权限
+                "NSAppleEventsUsageDescription": "需要此权限以管理开机启动设置。",
+                "com.apple.security.automation.apple-events": true
             ]),
             sources: ["VastWords/Sources/**"],
             resources: [
@@ -51,7 +56,8 @@ let project = Project(
                 .package(product: "SwifterSwift"),
                 .package(product: "KeyboardShortcuts"),
                 .package(product: "CoreStore"),
-                .sdk(name: "CoreServices", type: .framework)
+                .sdk(name: "CoreServices", type: .framework),
+                .sdk(name: "ServiceManagement", type: .framework)
             ],
             settings: .settings(
                 base: [

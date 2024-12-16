@@ -2,9 +2,11 @@ import Foundation
 import SwiftUI
 import Combine
 import Defaults
+import ServiceManagement
 
 extension Defaults.Keys {
     static let showStarredOnly = Key<Bool>("showStarredOnly", default: false)
+    static let launchAtLogin = Key<Bool>("launchAtLogin", default: false)
 }
 
 /// 单词列表项
@@ -24,6 +26,9 @@ final class WordListViewModel: ObservableObject {
     /// 单词仓库
     private let repository: WordRepository
     
+    /// 开机启动的 Helper Bundle ID
+    private let launchHelperBundleId = "com.vastwords.LaunchHelper"
+    
     /// 单词列表
     @Published private(set) var items: [WordListItem] = []
     /// 搜索文本
@@ -39,13 +44,54 @@ final class WordListViewModel: ObservableObject {
     }
     /// 是否显示释义
     @Published var showDefinition = true
+    /// 是否开机启动
+    @Published var launchAtLogin = false {
+        didSet {
+            // 避免重复触发
+            guard oldValue != launchAtLogin else { return }
+            
+            Task { @MainActor in
+                do {
+                    if launchAtLogin {
+                        if SMAppService.mainApp.status == .enabled {
+                            return  // 已经启用，不需要重复操作
+                        }
+                        try await SMAppService.mainApp.register()
+                    } else {
+                        if SMAppService.mainApp.status == .notRegistered {
+                            return  // 已经禁用，不需要重复操作
+                        }
+                        try await SMAppService.mainApp.unregister()
+                    }
+                    // 操作成功后才保存状态
+                    Defaults[.launchAtLogin] = launchAtLogin
+                } catch {
+                    print("⚠️ Failed to \(launchAtLogin ? "enable" : "disable") launch at login: \(error)")
+                    // 如果设置失败，直接设置属性值，避免触发 didSet
+                    self.launchAtLogin = oldValue
+                }
+            }
+        }
+    }
     /// 最近12小时的统计数据
     @Published private(set) var hourlyStatistics: [HourlyStatistics] = []
     
     /// 单词总数
     var totalCount: Int { items.count }
+    /// 星标单词数量
+    var starredCount: Int { items.filter { $0.stars > 0 }.count }
     /// 第一个单词的时间
     var firstWordDate: Date? { items.last?.createdAt }
+    
+    /// 获取相对时间描述
+    var relativeTimeDescription: String? {
+        guard let date = firstWordDate else { return nil }
+        
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -82,6 +128,12 @@ final class WordListViewModel: ObservableObject {
     
     init(repository: WordRepository = .shared) {
         self.repository = repository
+        
+        // 从系统获取实际的开机启动状态
+        let isEnabled = (try? SMAppService.mainApp.status == .enabled) ?? false
+        self.launchAtLogin = isEnabled  // 先设置属性
+        Defaults[.launchAtLogin] = isEnabled  // 再保存状态
+        
         // 从 Defaults 读取星标筛选状态
         self.showStarredOnly = Defaults[.showStarredOnly]
         
@@ -109,7 +161,7 @@ final class WordListViewModel: ObservableObject {
             }
             .store(in: &cancellables)
         
-        // 监听是否显示清除按钮
+        // 监是否显示清除按钮
         $searchText
             .map { !$0.isEmpty }
             .assign(to: \.showsClearButton, on: self)
@@ -129,7 +181,7 @@ final class WordListViewModel: ObservableObject {
         }
     }
     
-    /// 加载最近12小时的统计数���
+    /// 加载最近12小时的统计数据
     private func loadStatistics() {
         do {
             let now = Date()
@@ -253,7 +305,7 @@ final class WordListViewModel: ObservableObject {
             do {
                 var words = try repository.search(query)
                 
-                // 如果开启了��标筛选，显示星标单词
+                // 果开启了星标筛选，显示星标单词
                 if showStarredOnly {
                     words = words.filter { $0.stars > 0 }
                 }

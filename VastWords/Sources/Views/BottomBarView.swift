@@ -18,10 +18,11 @@ struct BottomBarView: View {
                 }
             } label: {
                 Text("清空全部")
-                    .foregroundColor(.red.opacity(0.7))
             }
             .buttonStyle(.plain)
             .font(Typography.caption)
+            .tint(.red)
+            .foregroundStyle(.red)
             
             Spacer()
             
