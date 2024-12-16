@@ -243,24 +243,6 @@ struct StatisticsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            
-            // 导出按钮
-            HStack(spacing: Spacing.small) {
-                Image(systemName: "square.and.arrow.up")
-                    .frame(width: 16)
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                
-                Text("导出单词")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                
-                Spacer()
-                
-                Text("星标 (\(viewModel.starredCount)) 全部 (\(viewModel.allWordsCount))")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-            }
         }
         .padding(.horizontal, Spacing.extraLarge)
         .padding(.vertical, Spacing.large)
