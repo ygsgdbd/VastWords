@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import NaturalLanguage
 
 /// 单词提取工具
