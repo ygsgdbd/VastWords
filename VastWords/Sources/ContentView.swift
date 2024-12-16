@@ -21,6 +21,7 @@ struct ContentView: View {
             
             BottomBarView()
         }
+        .focusable(false)
     }
 }
 

@@ -115,7 +115,8 @@ struct SettingsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(Spacing.extraLarge)
+        .padding(.horizontal, Spacing.extraLarge)
+        .padding(.vertical, Spacing.medium)
     }
 }
 

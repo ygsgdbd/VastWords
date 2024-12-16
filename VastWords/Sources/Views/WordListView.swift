@@ -62,12 +62,9 @@ struct WordListView: View {
                         .onHover { isHovered in
                             hoveredWordId = isHovered ? item.id : nil
                         }
-                        .onTapGesture {
-                            SystemDictionaryService.shared.lookupInDictionary(item.text)
-                        }
                         
                         Divider()
-                            .opacity(0.2)
+                            .opacity(0.3)
                     }
                 }
             }
@@ -85,6 +82,8 @@ struct WordRowView: View {
     let onDelete: () -> Void
     
     @State private var hoveredStarIndex: Int?
+    @State private var isWordHovered: Bool = false
+    @State private var isDefinitionExpanded: Bool = false
     
     private static let relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
@@ -93,78 +92,115 @@ struct WordRowView: View {
     }()
     
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            // 第一行：单词和出现次数
+        VStack(alignment: .leading, spacing: Spacing.small) {
+            // 第一行：单词、时间、次数
             HStack(alignment: .center, spacing: Spacing.small) {
-                Text(item.text.capitalized)
-                    .font(Typography.title)
-                    .foregroundStyle(.primary)
-                    .onTapGesture {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(item.text, forType: .string)
+                Button {
+                    SystemDictionaryService.shared.lookupInDictionary(item.text)
+                } label: {
+                    Text(item.text.capitalized)
+                        .font(Typography.title)
+                        .foregroundStyle(.primary)
+                        .underline(isWordHovered)
+                }
+                .buttonStyle(.plain)
+                .onHover { hovered in
+                    isWordHovered = hovered
+                    if hovered {
+                        NSCursor.pointingHand.set()
+                    } else {
+                        NSCursor.arrow.set()
                     }
+                }
                 
                 Text("•")
-                    .font(Typography.caption)
+                    .font(.system(size: 9))
                     .foregroundStyle(.secondary)
                 
                 Text(Self.relativeFormatter.localizedString(for: item.updatedAt, relativeTo: Date()))
-                    .font(Typography.subtitle)
+                    .font(.system(size: 9))
                     .foregroundStyle(.secondary)
+                
+                Text("•")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+                
+                Text("\(item.count)次")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
                 
                 Spacer()
                 
-                Text("\(item.count)次")
-                    .font(Typography.subtitle)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
+                // 操作按钮
+                if isHovered {
+                    HStack(spacing: Spacing.medium) {
+                        Button {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(item.text, forType: .string)
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .imageScale(.small)
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .focusable(false)
+                        
+                        Button(action: onDelete) {
+                            Image(systemName: "trash")
+                                .imageScale(.small)
+                                .foregroundStyle(.red)
+                        }
+                        .buttonStyle(.plain)
+                        .focusable(false)
+                    }
+                }
             }
             
-            // 第二行：星级评分和删除按钮
-            HStack {
+            // 第二行：星级评分
+            HStack(spacing: Spacing.small) {
                 // 星级评分
                 HStack(spacing: Spacing.tiny) {
                     ForEach(0..<5) { index in
-                        Image(systemName: index <= (hoveredStarIndex ?? (item.stars - 1)) ? "star.fill" : "star")
-                            .foregroundStyle(index < item.stars ? .yellow : .secondary.opacity(0.4))
-                            .imageScale(.small)
-                            .onHover { isHovered in
-                                hoveredStarIndex = isHovered ? index : nil
-                            }
-                            .onTapGesture {
-                                onStarTap(index + 1)
-                            }
-                            .contentShape(Rectangle())
+                        Button {
+                            onStarTap(index + 1)
+                        } label: {
+                            Image(systemName: index <= (hoveredStarIndex ?? (item.stars - 1)) ? "star.fill" : "star")
+                                .foregroundStyle(index < item.stars ? .yellow : .secondary.opacity(0.4))
+                                .imageScale(.small)
+                                .font(.system(size: 12))
+                                .onHover { isHovered in
+                                    hoveredStarIndex = isHovered ? index : nil
+                                }
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .focusable(false)
                     }
                 }
                 
                 Spacer()
-                
-                // 删除按钮
-                if isHovered {
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .imageScale(.small)
-                            .foregroundStyle(.red)
-                    }
-                    .buttonStyle(.plain)
-                }
             }
-            .padding(.vertical, Spacing.tiny)
             
-            // 第三行：释义
+            // 释义
             if viewModel.showDefinition, let definition = item.definition {
-                Text(definition)
-                    .font(Typography.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(3)
-                    .onTapGesture {
-                        SystemDictionaryService.shared.lookupInDictionary(item.text)
+                Button {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        isDefinitionExpanded.toggle()
                     }
+                } label: {
+                    Text(definition)
+                        .font(Typography.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(isDefinitionExpanded ? nil : 3)
+                        .multilineTextAlignment(.leading)
+                }
+                .buttonStyle(.plain)
+                .focusable(false)
             }
         }
         .padding(.horizontal, Spacing.extraLarge)
-        .padding(.vertical, Spacing.large)
+        .padding(.vertical, Spacing.medium)
     }
 }
 
