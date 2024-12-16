@@ -187,8 +187,8 @@ final class WordListViewModel: ObservableObject {
             let now = Date()
             let calendar = Calendar.current
             
-            // 创建最近12小时的时间点
-            let hours = (0...11).map { hourOffset in
+            // 创建最近24小时的时间点
+            let hours = (0...23).map { hourOffset in
                 calendar.date(byAdding: .hour, value: -hourOffset, to: now)!
             }.reversed()
             
@@ -197,10 +197,14 @@ final class WordListViewModel: ObservableObject {
                 let startOfHour = calendar.startOfHour(for: hour)
                 let endOfHour = calendar.date(byAdding: .hour, value: 1, to: startOfHour)!
                 let count = try repository.getWordCount(from: startOfHour, to: endOfHour)
+                print("📊 Statistics for \(startOfHour): \(count) words")
                 return HourlyStatistics(hour: startOfHour, count: count)
             }
+            
+            print("📊 Total statistics loaded: \(hourlyStatistics.count) hours")
         } catch {
             print("⚠️ Failed to load statistics: \(error)")
+            hourlyStatistics = []
         }
     }
     

@@ -5,6 +5,7 @@ import SwiftUIX
 struct WordListView: View {
     @EnvironmentObject private var viewModel: WordListViewModel
     @State private var hoveredWordId: String?
+    @FocusState private var isSearchFieldFocused: Bool
     
     var body: some View {
         VStack(spacing: Spacing.none) {
@@ -14,9 +15,13 @@ struct WordListView: View {
                     .foregroundStyle(.secondary)
                     .imageScale(.small)
                 
-                TextField("搜索", text: $viewModel.searchText)
+                TextField("搜索 (⌘F)", text: $viewModel.searchText)
                     .font(Typography.body)
                     .textFieldStyle(.plain)
+                    .focused($isSearchFieldFocused)
+                    .onSubmit {
+                        // 处理搜索提交
+                    }
                 
                 if viewModel.showsClearButton {
                     Button(action: viewModel.clearSearch) {
@@ -25,6 +30,7 @@ struct WordListView: View {
                             .imageScale(.small)
                     }
                     .buttonStyle(.plain)
+                    .keyboardShortcut(.escape, modifiers: [])
                 }
                 
                 // 星标筛选
@@ -70,6 +76,13 @@ struct WordListView: View {
                 }
             }
             .scrollIndicators(.visible)
+        }
+        .background {
+            Button("") { // 隐藏的按钮用于处理快捷键
+                isSearchFieldFocused = true
+            }
+            .keyboardShortcut("f", modifiers: .command)
+            .opacity(0)
         }
     }
 }
