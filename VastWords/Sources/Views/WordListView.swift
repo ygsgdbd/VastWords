@@ -65,6 +65,7 @@ struct WordListView: View {
                         
                         Divider()
                             .opacity(0.3)
+                            .padding(.horizontal, Spacing.extraLarge)
                     }
                 }
             }

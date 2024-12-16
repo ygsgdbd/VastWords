@@ -57,15 +57,15 @@ final class ClipboardManager: ObservableObject {
         lastChangeCount = pasteboard.changeCount
         print("📋 ClipboardManager: 获取到文本 [\(text.prefix(50))...]")
         
-        let words = extractor.extract(from: text)
-        guard !words.isEmpty else {
-            print("📋 ClipboardManager: 未提取到有效单词")
-            return
-        }
-        
-        print("📋 ClipboardManager: 提取到 \(words.count) 个单词: \(words)")
-        
         Task {
+            let words = await extractor.extract(from: text)
+            guard !words.isEmpty else {
+                print("📋 ClipboardManager: 未提取到有效单词")
+                return
+            }
+            
+            print("📋 ClipboardManager: 提取到 \(words.count) 个单词: \(words)")
+            
             var validWords: Set<String> = []
             
             // 验证每个单词
