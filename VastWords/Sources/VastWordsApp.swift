@@ -16,7 +16,7 @@ struct VastWordsApp: App {
             ContentView()
                 .environmentObject(viewModel)
         } label: {
-            Image(systemName: "character.textbox")
+            Image(systemName: "text.word.spacing")
         }
         .menuBarExtraStyle(.window)
     }

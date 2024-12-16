@@ -80,8 +80,17 @@ final class WordListViewModel: ObservableObject {
     var totalCount: Int { items.count }
     /// 星标单词数量
     var starredCount: Int { items.filter { $0.stars > 0 }.count }
+    /// 所有单词总数（不受筛选影响）
+    private(set) var allWordsCount: Int = 0
     /// 第一个单词的时间
-    var firstWordDate: Date? { items.last?.createdAt }
+    var firstWordDate: Date? {
+        do {
+            return try repository.getAll().last?.createdAt
+        } catch {
+            print("⚠️ Failed to get first word date: \(error)")
+            return nil
+        }
+    }
     
     /// 获取相对时间描述
     var relativeTimeDescription: String? {
