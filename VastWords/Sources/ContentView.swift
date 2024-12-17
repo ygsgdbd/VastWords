@@ -27,5 +27,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(WordListViewModel())
+        .environmentObject(WordListViewModel(repository: .shared))
 } 

@@ -45,5 +45,5 @@ struct BottomBarView: View {
 
 #Preview {
     BottomBarView()
-        .environmentObject(WordListViewModel())
+        .environmentObject(WordListViewModel(repository: .shared))
 } 

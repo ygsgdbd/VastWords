@@ -4,11 +4,13 @@ import SwiftUIX
 @main
 struct VastWordsApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var viewModel = WordListViewModel()
+    @StateObject private var viewModel = WordListViewModel(repository: .shared)
     
     init() {
         // 启动剪贴板监听
-        ClipboardManager.shared.startMonitoring()
+        Task { @MainActor in
+            ClipboardManager.shared.startMonitoring()
+        }
     }
     
     var body: some Scene {

@@ -246,10 +246,13 @@ struct StatisticsView: View {
         }
         .padding(.horizontal, Spacing.extraLarge)
         .padding(.vertical, Spacing.large)
+        .task {
+            await viewModel.loadStatistics()
+        }
     }
 }
 
 #Preview {
     StatisticsView()
-        .environmentObject(WordListViewModel())
+        .environmentObject(WordListViewModel(repository: .shared))
 } 

@@ -122,6 +122,6 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environmentObject(WordListViewModel())
+        .environmentObject(WordListViewModel(repository: .shared))
         .frame(width: 300)
 } 

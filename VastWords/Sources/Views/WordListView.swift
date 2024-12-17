@@ -84,6 +84,10 @@ struct WordListView: View {
             .keyboardShortcut("f", modifiers: .command)
             .opacity(0)
         }
+        .task {
+            // 初始加载数据
+            await viewModel.loadWords()
+        }
     }
 }
 
@@ -220,5 +224,5 @@ struct WordRowView: View {
 
 #Preview {
     WordListView()
-        .environmentObject(WordListViewModel())
+        .environmentObject(WordListViewModel(repository: .shared))
 } 

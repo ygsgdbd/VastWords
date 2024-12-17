@@ -1,6 +1,7 @@
 import Foundation
 import CoreStore
 
+@MainActor
 final class WordRepository {
     static let shared = WordRepository()
     
@@ -136,7 +137,7 @@ final class WordRepository {
     
     /// 删除所有单词
     func removeAll() throws {
-        _ = try dataStack.perform { transaction in
+        try dataStack.perform { transaction in
             try transaction.deleteAll(From<Word>())
         }
     }
