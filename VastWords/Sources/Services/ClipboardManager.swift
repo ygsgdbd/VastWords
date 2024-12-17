@@ -10,6 +10,9 @@ extension Notification.Name {
 final class ClipboardManager {
     static let shared = ClipboardManager()
     
+    /// 剪贴板检查间隔（纳秒）
+    private let checkInterval: UInt64 = 500_000_000  // 0.5秒
+    
     private var lastChangeCount: Int
     private let pasteboard = NSPasteboard.general
     private var cancellables = Set<AnyCancellable>()
@@ -29,7 +32,7 @@ final class ClipboardManager {
     }
     
     func startMonitoring() {
-        print("📋 ClipboardManager: 开始监听剪贴板")
+        print("📋 ClipboardManager: 开始监听剪贴板（检查间隔：\(Double(checkInterval) / 1_000_000_000)��）")
         
         // 取消之前的监听任务
         monitoringTask?.cancel()
@@ -44,8 +47,8 @@ final class ClipboardManager {
                     await processClipboard()
                 }
                 
-                // 等待一段时间再检查
-                try? await Task.sleep(nanoseconds: 500_000_000) // 0.5秒
+                // 等待指定时间再检查
+                try? await Task.sleep(nanoseconds: checkInterval)
             }
         }
     }
@@ -63,6 +66,8 @@ final class ClipboardManager {
             // 提取单词
             let words = await extractor.extract(from: text)
             guard !words.isEmpty else { return }
+            
+            print("📋 ClipboardManager: 发现 \(words.count) 个单词")
             
             // 验证单词是否有效
             var validWords = Set<String>()
