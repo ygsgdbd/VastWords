@@ -19,6 +19,10 @@ struct ContentView: View {
             
             Divider()
             
+//            LimitationsView()
+//            
+//            Divider()
+            
             BottomBarView()
         }
         .focusable(false)

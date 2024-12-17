@@ -135,18 +135,18 @@ struct WordRowView: View {
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
                 
-                Text(Self.relativeFormatter.localizedString(for: item.updatedAt, relativeTo: Date()))
+                Text("\(item.count)次")
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
+                    .monospacedDigit()
                 
                 Text("•")
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
                 
-                Text("\(item.count)次")
+                Text(Self.relativeFormatter.localizedString(for: item.updatedAt, relativeTo: Date()))
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
-                    .monospacedDigit()
                 
                 Spacer()
                 

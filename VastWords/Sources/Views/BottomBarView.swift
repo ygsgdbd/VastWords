@@ -3,6 +3,8 @@ import SwiftUI
 struct BottomBarView: View {
     @EnvironmentObject private var viewModel: WordListViewModel
     
+    private let repositoryURL = URL(string: "https://github.com/rainbow911/VastWords")!
+    
     var body: some View {
         HStack {
             Button {
@@ -17,12 +19,27 @@ struct BottomBarView: View {
                     viewModel.removeAll()
                 }
             } label: {
-                Text("清空全部")
+                HStack(spacing: 4) {
+                    Image(systemName: "trash")
+                    Text("清空全部")
+                }
             }
             .buttonStyle(.plain)
             .font(Typography.caption)
             .tint(.red)
             .foregroundStyle(.red)
+            
+            Button {
+                NSWorkspace.shared.open(repositoryURL)
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "link")
+                    Text("代码仓库")
+                }
+            }
+            .buttonStyle(.plain)
+            .font(Typography.caption)
+            .foregroundColor(.secondary)
             
             Spacer()
             
