@@ -35,7 +35,7 @@ final class ClipboardManager {
         monitoringTask?.cancel()
         
         // 创建新的监听任务
-        monitoringTask = Task { @MainActor in
+        monitoringTask = Task(priority: .background) { @MainActor in
             while !Task.isCancelled {
                 // 检查剪贴板是否有变化
                 let currentCount = pasteboard.changeCount
@@ -61,15 +61,15 @@ final class ClipboardManager {
         
         do {
             // 提取单词
-            let words = try await extractor.extract(from: text)
+            let words = await extractor.extract(from: text)
             guard !words.isEmpty else { return }
             
             // 验证单词是否有效
             var validWords = Set<String>()
             
-            try await withThrowingTaskGroup(of: (String, Bool).self) { group in
+            await withThrowingTaskGroup(of: (String, Bool).self, body: { group in
                 for word in words {
-                    group.addTask {
+                    group.addTask(priority: .background) {
                         let definition = await self.dictionaryService.lookup(word)
                         return (word, definition != nil)
                     }
@@ -84,7 +84,7 @@ final class ClipboardManager {
                 } catch {
                     print("⚠️ ClipboardManager: 单词验证失败: \(error)")
                 }
-            }
+            })
             
             guard !validWords.isEmpty else { return }
             

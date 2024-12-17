@@ -130,7 +130,7 @@ final class WordRepository {
                 From<Word>()
                     .where(Where<Word>("text == %@", word))
             ) {
-                try transaction.delete(existingWord)
+                transaction.delete(existingWord)
             }
         }
     }

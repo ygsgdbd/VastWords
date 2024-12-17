@@ -8,9 +8,7 @@ struct VastWordsApp: App {
     
     init() {
         // 启动剪贴板监听
-        Task { @MainActor in
-            ClipboardManager.shared.startMonitoring()
-        }
+        ClipboardManager.shared.startMonitoring()
     }
     
     var body: some Scene {

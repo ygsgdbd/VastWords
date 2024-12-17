@@ -317,7 +317,7 @@ final class WordListViewModel: ObservableObject {
             if SMAppService.mainApp.status == .enabled {
                 return  // 已经启用，不需要重复操作
             }
-            try await SMAppService.mainApp.register()
+            try SMAppService.mainApp.register()
         } else {
             if SMAppService.mainApp.status == .notRegistered {
                 return  // 已经禁用，不需要重复操作
