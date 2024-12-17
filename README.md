@@ -14,7 +14,7 @@
 VastWords 是一个 macOS 单词本应用，帮助你快速积累日常阅读中遇到的单词。它能够自动监听剪贴板中的英文单词，并提供系统词典查询功能。应用完全离线运行，所有数据均存储在本地，确保您的隐私安全。
 
 <div align="center">
-  <img src="Screenshots/preview-light.png" alt="VastWords Preview" width="360">
+  <img src="Screenshots/preview-dark.png" alt="VastWords Preview" width="360">
 </div>
 
 ## 技术栈
